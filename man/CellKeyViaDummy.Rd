@@ -76,5 +76,10 @@ CellKeyViaDummy(z, "freq", "keys", dimVar = c("geo", "eu", "year"))
 CellKeyViaDummy(z, freqVar = NULL, "keys", dimVar = c("geo", "eu", "year"))
 CellKeyViaDummy(z, "freq", "keys", hierarchies = 
      list(geo = c("EU", "@Portugal", "@Spain", "Iceland"), year = c("2018", "2019")))
-     
+
+# my_km2 is temporary function, SSBtoolsData('my_km2') available in next SSBtools version
+my_km2 <- SSBcellKey:::my_km2()
+set.seed(123)
+my_km2$keys <- runif(nrow(my_km2))
+CellKeyViaDummy(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
 }

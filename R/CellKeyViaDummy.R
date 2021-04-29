@@ -46,7 +46,12 @@
 #' CellKeyViaDummy(z, freqVar = NULL, "keys", dimVar = c("geo", "eu", "year"))
 #' CellKeyViaDummy(z, "freq", "keys", hierarchies = 
 #'      list(geo = c("EU", "@Portugal", "@Spain", "Iceland"), year = c("2018", "2019")))
-#'      
+#'
+#' # my_km2 is temporary function, SSBtoolsData('my_km2') available in next SSBtools version
+#' my_km2 <- SSBcellKey:::my_km2()
+#' set.seed(123)
+#' my_km2$keys <- runif(nrow(my_km2))
+#' CellKeyViaDummy(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
 CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL, 
                             hierarchies = NULL, formula = NULL, dimVar = NULL, 
                             preAggregate = is.null(freqVar),
@@ -189,9 +194,17 @@ FUNaggregate <- function(x){
 }
 
 
-
-
-
+# temporary function as replacement for SSBtoolsData("my_km2") available in next SSBtools version
+my_km2 <- function(){ # my_km² not allowed, Portable packages must use only ASCII characters in their R code,
+  data.frame(Square1000m  = c(rep("my_km",10), rep("another_km",8)),
+             Square250m   = c(rep("500_000",3), rep("750_250",4), rep("750_500",3), rep("another_500_000",4), rep("another_750_250",4)),
+             Municipality = c(rep("Oslo",3), rep("Nittedal",6), rep("Oslo",9)),
+             Age = c("15_to_65", "15_to_65", "under_15", "15_to_65", "15_to_65", "under_15", "under_15", "65_and_over", "65_and_over", "15_to_65", 
+                     "15_to_65", "15_to_65", "under_15", "under_15", "15_to_65", "15_to_65", "65_and_over", "65_and_over"),
+             Sex = c("female", "male", "male", "female", "male", "female", "male", "female", "male", "female", "female", "male", "female", "male", 
+                     "female", "male", "female", "male"),
+             freq = c(3, 2, 1, 2, 2, 1, 1, 1, 1, 1, 26, 21, 31, 34, 2, 1, 10, 13))
+}
 
 
 
