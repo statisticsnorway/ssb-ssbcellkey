@@ -17,12 +17,15 @@
 #' @param total	String used to name totals
 #' @param x Dummy matrix defining cells to be published (possible as input instead of generated)
 #' @param crossTable	Data frame to accompany `x` when `x` is input.  
+#' @param xReturn	Dummy matrix in output when TRUE (as input parameter x)
+#' @param innerReturn	Input data in output when TRUE (possibly pre-aggregated)  
 #' @param D \code{\link{pt_create_pParams}} parameter
 #' @param V \code{\link{pt_create_pParams}} parameter
 #' @param js \code{\link{pt_create_pParams}} parameter
 #' @param pstay \code{\link{pt_create_pParams}} parameter
 #'
-#' @return Data frame with keys or aggregated counts (original and perturbated) 
+#' @return Data frame with keys or aggregated counts (original and perturbated). 
+#'         A list when `xReturn` and/or `innerReturn` is `TRUE` (main output named as `"publish"`).
 #' 
 #' 
 #' @importFrom SSBtools FindHierarchies ModelMatrix
@@ -57,6 +60,7 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
                             preAggregate = is.null(freqVar),
                             total = "Total", 
                             x = NULL, crossTable = NULL,
+                            xReturn = FALSE, innerReturn = FALSE,
                             D=5, V=3, js=2, pstay = NULL){
 
   force(preAggregate)
@@ -70,10 +74,9 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
     dimVar <- names(data[1, dimVar, drop = FALSE])
   }
   
+  inner <- vector("list", 0)
   
-  if (preAggregate) {
-    cat("[preAggregate ", dim(data)[1], "*", dim(data)[2], "->", sep = "")
-    flush.console()
+  if (preAggregate | innerReturn){
     if (!is.null(hierarchies)) {
       dVar <- names(hierarchies)
     } else {
@@ -83,6 +86,12 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
         dVar <- dimVar
       }
     }
+  }
+  
+  
+  if (preAggregate) {
+    cat("[preAggregate ", dim(data)[1], "*", dim(data)[2], "->", sep = "")
+    flush.console()
     if(length(c(freqVar, rKeyVar))){
       if(!length(freqVar)){  # simpler code by adding 1s, but then the entire data.frame is copied into memory
         freqVar_ <- "f_Re_qVa_r"
@@ -101,7 +110,21 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
     }
     cat(dim(data)[1], "*", dim(data)[2], "]", sep = "")
     flush.console()
+    if (innerReturn) {
+      if (freqVar == "f_Re_qVa_r") {
+        if (!("freq" %in% names(data))) {
+          names(data)[names(data) == freqVar] <- "freq"
+          freqVar <- "freq"
+        }
+      }
+      inner <- list(inner = data)
+    }  
+  } else {
+    if (innerReturn) {
+      inner <- list(inner = data[, c(dVar, freqVar, rKeyVar), drop = FALSE])
+    }
   }
+  
   if (is.null(rKeyVar)) {
     rkeys <- runif(NROW(data))
     rKeyVar <- "rKeyVar"
@@ -123,6 +146,11 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
   
   mm <- ModelMatrix(data = data, hierarchies = hierarchies, formula = formula, crossTable = crossTable, modelMatrix = x, total = total, dimVar = dimVar)
   
+  if (xReturn) {
+    x <- list(x = mm$modelMatrix)
+  } else {
+    x <- vector("list", 0)
+  }
   
   cat("]")
   flush.console()
@@ -147,6 +175,9 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
     cat("]\n")
     flush.console()
     rownames(data) <- NULL
+    if (xReturn | innerReturn) {
+      return(c(list(publish = data), inner, x))
+    }
     return(data)
   }
   
@@ -176,6 +207,9 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
   flush.console()
   names(data)[NCOL(data)] <- rKeyVar
   rownames(data) <- NULL
+  if (xReturn | innerReturn) {
+    return(c(list(publish = data), inner, x))
+  }
   data
 }
 
