@@ -15,6 +15,8 @@ CellKeyViaDummy(
   total = "Total",
   x = NULL,
   crossTable = NULL,
+  xReturn = FALSE,
+  innerReturn = FALSE,
   D = 5,
   V = 3,
   js = 2,
@@ -44,6 +46,10 @@ Exceptions are \code{"rowFactor"} or \code{""}, which correspond to only using t
 
 \item{crossTable}{Data frame to accompany \code{x} when \code{x} is input.}
 
+\item{xReturn}{Dummy matrix in output when TRUE (as input parameter x)}
+
+\item{innerReturn}{Input data in output when TRUE (possibly pre-aggregated)}
+
 \item{D}{\code{\link{pt_create_pParams}} parameter}
 
 \item{V}{\code{\link{pt_create_pParams}} parameter}
@@ -53,7 +59,8 @@ Exceptions are \code{"rowFactor"} or \code{""}, which correspond to only using t
 \item{pstay}{\code{\link{pt_create_pParams}} parameter}
 }
 \value{
-Data frame with keys or aggregated counts (original and perturbated)
+Data frame with keys or aggregated counts (original and perturbated).
+A list when \code{xReturn} and/or \code{innerReturn} is \code{TRUE} (main output named as \code{"publish"}).
 }
 \description{
 The perturbation table is created by package ptable.
@@ -76,5 +83,10 @@ CellKeyViaDummy(z, "freq", "keys", dimVar = c("geo", "eu", "year"))
 CellKeyViaDummy(z, freqVar = NULL, "keys", dimVar = c("geo", "eu", "year"))
 CellKeyViaDummy(z, "freq", "keys", hierarchies = 
      list(geo = c("EU", "@Portugal", "@Spain", "Iceland"), year = c("2018", "2019")))
-     
+
+# my_km2 is temporary function, SSBtoolsData('my_km2') available in next SSBtools version
+my_km2 <- SSBcellKey:::my_km2()
+set.seed(123)
+my_km2$keys <- runif(nrow(my_km2))
+CellKeyViaDummy(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
 }
