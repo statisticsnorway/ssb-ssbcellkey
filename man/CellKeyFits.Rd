@@ -54,11 +54,12 @@ CellKeyFits(
 \item{...}{dots}
 }
 \value{
-
+list
 }
 \description{
 CellKeyFits
 }
 \examples{
-1 + 1 
+my_km2 <- SSBtools::SSBtoolsData("my_km2")
+CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
 }

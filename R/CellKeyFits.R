@@ -17,13 +17,14 @@
 #' @param reduceByLeverage Mipf parameter
 #' @param ... dots
 #' 
-#' @return
-#' @importFrom SSBtools Mipf
+#' @return list
+#' @importFrom SSBtools Mipf Extend0 LSfitNonNeg DummyDuplicated
 #' @importFrom Matrix crossprod
 #' @export
 #'
 #' @examples
-#' 1 + 1 
+#' my_km2 <- SSBtools::SSBtoolsData("my_km2")
+#' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
 CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL, formula = NULL, dimVar = NULL, 
                         preAggregate = is.null(freqVar), extend0 = TRUE, iter = 1000, eps = 0.01,
                         tol = 1e-13, reduceBy0 = TRUE, reduceByColSums = TRUE, reduceByLeverage = FALSE, ...) {
@@ -48,7 +49,11 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
     
     # 2
     if (extend0) {
-      data <- Extend0(data, freqVar)
+      extraVar <- c(rKeyVar, "rKeyVar")[1]
+      if (!(extraVar %in% names(data))) {
+        extraVar <- FALSE
+      } 
+      data <- Extend0(data, freqVar,  extraVar = extraVar)
     }
   } else {
     nrowOrig <- nrow(data)
@@ -68,9 +73,10 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
                  x = mm$modelMatrix, crossTable = mm$crossTable, ...)
   }
   
+  dd <- DummyDuplicated(mm$modelMatrix)
   
   # 5
-  lsFit <- LSfitNonNeg(mm$modelMatrix, Matrix(a$perturbed, ncol = 1))
+  lsFit <- LSfitNonNeg(mm$modelMatrix[, !dd, drop=FALSE], Matrix(a$perturbed[!dd], ncol = 1))
   
   
   # 6
