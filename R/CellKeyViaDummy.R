@@ -24,7 +24,7 @@
 #' @param js \code{\link{pt_create_pParams}} parameter
 #' @param pstay \code{\link{pt_create_pParams}} parameter
 #'
-#' @return Data frame with keys or aggregated counts (original and perturbated). 
+#' @return Data frame with keys or aggregated counts (original and perturbed). 
 #'         A list when `xReturn` and/or `innerReturn` is `TRUE` (main output named as `"publish"`).
 #' 
 #' 
@@ -40,22 +40,22 @@
 #'                 year = rep(c("2018","2019"), each = 3),
 #'                 freq = c(2,3,7,1,5,6), stringsAsFactors = FALSE)
 #' 
-#' CellKeyViaDummy(z, "freq", formula = ~eu * year + geo)
-#' CellKeyViaDummy(z, freqVar = NULL, formula = ~eu * year + geo)
-#' CellKeyViaDummy(z, freqVar = NULL, formula = ~eu * year + geo, preAggregate = FALSE)
+#' CellKey(z, "freq", formula = ~eu * year + geo)
+#' CellKey(z, freqVar = NULL, formula = ~eu * year + geo)
+#' CellKey(z, freqVar = NULL, formula = ~eu * year + geo, preAggregate = FALSE)
 #' z$keys <- sin(1:6)%%1
-#' CellKeyViaDummy(z, "freq", "keys", formula = ~eu * year + geo)
-#' CellKeyViaDummy(z, "freq", "keys", dimVar = c("geo", "eu", "year"))
-#' CellKeyViaDummy(z, freqVar = NULL, "keys", dimVar = c("geo", "eu", "year"))
-#' CellKeyViaDummy(z, "freq", "keys", hierarchies = 
+#' CellKey(z, "freq", "keys", formula = ~eu * year + geo)
+#' CellKey(z, "freq", "keys", dimVar = c("geo", "eu", "year"))
+#' CellKey(z, freqVar = NULL, "keys", dimVar = c("geo", "eu", "year"))
+#' CellKey(z, "freq", "keys", hierarchies = 
 #'      list(geo = c("EU", "@Portugal", "@Spain", "Iceland"), year = c("2018", "2019")))
 #'
 #' # my_km2 is temporary function, SSBtoolsData('my_km2') available in next SSBtools version
 #' my_km2 <- SSBcellKey:::my_km2()
 #' set.seed(123)
 #' my_km2$keys <- runif(nrow(my_km2))
-#' CellKeyViaDummy(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
-CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL, 
+#' CellKey(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
+CellKey <- function(data, freqVar=NULL, rKeyVar=NULL, 
                             hierarchies = NULL, formula = NULL, dimVar = NULL, 
                             preAggregate = is.null(freqVar),
                             total = "Total", 
@@ -168,7 +168,7 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
   flush.console()
   
   if (length(freqVar)) {
-    yOrig <- Matrix::crossprod(mm$modelMatrix, data[, freqVar])[, 1, drop = TRUE]
+    original <- Matrix::crossprod(mm$modelMatrix, data[, freqVar])[, 1, drop = TRUE]
   } else {
     data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), r_Ke_yVa_r = rKey)
     names(data)[NCOL(data)] <- rKeyVar
@@ -197,12 +197,12 @@ CellKeyViaDummy <- function(data, freqVar=NULL, rKeyVar=NULL,
   cat(".")
   flush.console()
   
-  yPert <- Pconvert(yOrig, pMatrix, rKey)
+  perturbed <- Pconvert(original, pMatrix, rKey)
   
   cat(".")
   flush.console()
   
-  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), yOrig = yOrig, yPert = yPert, bitkey, r_Ke_yVa_r = rKey)
+  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, perturbed = perturbed, bitkey, r_Ke_yVa_r = rKey)
   cat("]\n")
   flush.console()
   names(data)[NCOL(data)] <- rKeyVar
