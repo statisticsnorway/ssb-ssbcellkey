@@ -26,7 +26,20 @@
 #' @export
 #'
 #' @examples
+#' z <- data.frame(geo  = c("Iceland", "Portugal", "Spain"), 
+#'                 eu = c("nonEU", "EU", "EU"),
+#'                 year = rep(c("2018","2019"), each = 3),
+#'                 freq = c(2,3,7,1,5,6), stringsAsFactors = FALSE)
+#' z4 <- z[-c(1:2), ]
+#' 
+#' CellKeyFits(z4, "freq", formula = ~eu * year + geo, extend0 = FALSE)
+#' CellKeyFits(z4, "freq", formula = ~eu * year + geo)
+#' set.seed(123)
+#' z4$keys <- runif(4)
+#' CellKeyFits(z4, "freq", "keys", formula = ~eu * year + geo)                 
+#' 
 #' my_km2 <- SSBtools::SSBtoolsData("my_km2")
+#' 
 #' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
 CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL, formula = NULL, dimVar = NULL, 
                         preAggregate = is.null(freqVar), xReturn = FALSE, 
