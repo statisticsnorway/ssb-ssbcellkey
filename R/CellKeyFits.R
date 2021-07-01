@@ -47,7 +47,7 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
                     preAggregate = preAggregate, innerReturn = 1, ...)
     
     
-    ma <- match(c("freqVar", "f_Re_qVa_r"), names(data))
+    ma <- match(c(freqVar, "f_Re_qVa_r"), names(data))
     ma <- ma[!is.na(ma)]
     freqVar <- c(names(data)[ma], "freq")[1]
     
@@ -86,12 +86,12 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
   
   
   # 6
-  ipFit <- Mipf(mm$modelMatrix, z = lsFit, iter = iter, eps = eps, tol = tol, 
+  ipFit <- Mipf(mm$modelMatrix[, !dd, drop=FALSE], z = lsFit, iter = iter, eps = eps, tol = tol, 
                 reduceBy0 = reduceBy0, reduceByColSums = reduceByColSums, reduceByLeverage = reduceByLeverage)
   
   
   data <- list(inner = cbind(data, ipFit = as.vector(ipFit)), 
-               publish = cbind(a, lsFit = as.vector(lsFit), ipFit = as.vector(crossprod(mm$modelMatrix, ipFit))))
+               publish = cbind(a,  ipFit = as.vector(crossprod(mm$modelMatrix, ipFit)))) # lsFit don’t match since dd
   
   if (xReturn) {
     names(mm)[1] <- "x"
