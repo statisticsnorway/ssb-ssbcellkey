@@ -66,6 +66,8 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                             D=5, V=3, js=2, pstay = NULL, rndSeed = 123){
 
   force(preAggregate)
+  
+  names_data <- names(data)
     
   # Ensure character (integer possible input) 
   freqVar <- names(data[1, freqVar, drop = FALSE])
@@ -114,7 +116,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     flush.console()
     if (innerReturn) {
       if (freqVar == "f_Re_qVa_r") {
-        if (!("freq" %in% names(data))) {
+        if (!("freq" %in% names_data)) {
           names(data)[names(data) == freqVar] <- "freq"
           freqVar <- "freq"
         }
