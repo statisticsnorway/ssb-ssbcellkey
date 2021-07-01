@@ -8,14 +8,17 @@
 #' @param hierarchies List of hierarchies
 #' @param dimVar Dimensional variables
 #' @param preAggregate Aggregation
-#' @param extend0  Extend0  
+#' @param xReturn	Dummy matrix in output when `TRUE`. To return crossTable as well, use `xReturn = 2`.
+#' @param extend0  Extend0
+#' @param limit LSfitNonNeg parameter
+#' @param viaQR LSfitNonNeg parameter 
 #' @param iter Mipf parameter
 #' @param eps  Mipf parameter
 #' @param tol  Mipf parameter
 #' @param reduceBy0 Mipf parameter
 #' @param reduceByColSums Mipf parameter
 #' @param reduceByLeverage Mipf parameter
-#' @param ... dots
+#' @param ... Further parameters to CellKey
 #' 
 #' @return list
 #' @importFrom SSBtools Mipf Extend0 LSfitNonNeg DummyDuplicated
@@ -26,7 +29,10 @@
 #' my_km2 <- SSBtools::SSBtoolsData("my_km2")
 #' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
 CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL, formula = NULL, dimVar = NULL, 
-                        preAggregate = is.null(freqVar), extend0 = TRUE, iter = 1000, eps = 0.01,
+                        preAggregate = is.null(freqVar), xReturn = FALSE, 
+                        extend0 = TRUE, 
+                        limit = 1e-10, viaQR = FALSE,
+                        iter = 1000, eps = 0.01,
                         tol = 1e-13, reduceBy0 = TRUE, reduceByColSums = TRUE, reduceByLeverage = FALSE, ...) {
   
   
@@ -76,7 +82,7 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
   dd <- DummyDuplicated(mm$modelMatrix)
   
   # 5
-  lsFit <- LSfitNonNeg(mm$modelMatrix[, !dd, drop=FALSE], Matrix(a$perturbed[!dd], ncol = 1))
+  lsFit <- LSfitNonNeg(mm$modelMatrix[, !dd, drop=FALSE], Matrix(a$perturbed[!dd], ncol = 1), limit = limit, viaQR = viaQR)
   
   
   # 6
@@ -84,9 +90,18 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
                 reduceBy0 = reduceBy0, reduceByColSums = reduceByColSums, reduceByLeverage = reduceByLeverage)
   
   
-  list(inner = cbind(data, ipFit = as.vector(ipFit)), 
-       publish = cbind(a, lsFit = as.vector(lsFit), ipFit = as.vector(crossprod(mm$modelMatrix, ipFit))))
+  data <- list(inner = cbind(data, ipFit = as.vector(ipFit)), 
+               publish = cbind(a, lsFit = as.vector(lsFit), ipFit = as.vector(crossprod(mm$modelMatrix, ipFit))))
   
+  if (xReturn) {
+    names(mm)[1] <- "x"
+    if (xReturn != 2) {
+      mm <- mm[1]
+    }
+    return(c(data, mm))
+  }
+  
+  data
 }                           
  
 

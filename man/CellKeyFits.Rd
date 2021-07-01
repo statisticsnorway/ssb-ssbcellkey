@@ -12,7 +12,10 @@ CellKeyFits(
   formula = NULL,
   dimVar = NULL,
   preAggregate = is.null(freqVar),
+  xReturn = FALSE,
   extend0 = TRUE,
+  limit = 1e-10,
+  viaQR = FALSE,
   iter = 1000,
   eps = 0.01,
   tol = 1e-13,
@@ -37,7 +40,13 @@ CellKeyFits(
 
 \item{preAggregate}{Aggregation}
 
+\item{xReturn}{Dummy matrix in output when \code{TRUE}. To return crossTable as well, use \code{xReturn = 2}.}
+
 \item{extend0}{Extend0}
+
+\item{limit}{LSfitNonNeg parameter}
+
+\item{viaQR}{LSfitNonNeg parameter}
 
 \item{iter}{Mipf parameter}
 
@@ -51,7 +60,7 @@ CellKeyFits(
 
 \item{reduceByLeverage}{Mipf parameter}
 
-\item{...}{dots}
+\item{...}{Further parameters to CellKey}
 }
 \value{
 list
