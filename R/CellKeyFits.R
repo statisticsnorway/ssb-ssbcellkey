@@ -35,9 +35,17 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
                         iter = 1000, eps = 0.01,
                         tol = 1e-13, reduceBy0 = TRUE, reduceByColSums = TRUE, reduceByLeverage = FALSE, ...) {
   
+  force(preAggregate)
   
-  freqVar <- names(data[1, freqVar, drop = FALSE])
+  if(!is.null(freqVar)){
+    freqVar <- names(data[1, freqVar, drop = FALSE])
+  }
   
+  if ("freq" %in% names(data)) {
+    newfreq <- "f_Re_qVa_r"
+  } else {
+    newfreq <- "freq"
+  }
   
   if (preAggregate | extend0) {
     
@@ -46,10 +54,9 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
                     hierarchies = hierarchies, formula = formula, dimVar = dimVar, 
                     preAggregate = preAggregate, innerReturn = 1, ...)
     
-    
     ma <- match(c(freqVar, "f_Re_qVa_r"), names(data))
     ma <- ma[!is.na(ma)]
-    freqVar <- c(names(data)[ma], "freq")[1]
+    freqVar <- c(names(data)[ma], newfreq)[1]
     
     nrowOrig <- nrow(data)
     
@@ -69,6 +76,10 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
   # 3
   mm <- ModelMatrix(data = data, hierarchies = hierarchies, formula = formula, crossTable = TRUE, dimVar = dimVar, ...)
   
+  if (is.null(freqVar)) {
+    data[newfreq] <- 1L
+    freqVar <- newfreq
+  }
   
   # 4
   if (nrowOrig < nrow(data)) {
