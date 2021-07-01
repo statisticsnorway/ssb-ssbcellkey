@@ -21,8 +21,8 @@
 #' @param ... Further parameters to CellKey
 #' 
 #' @return list
-#' @importFrom SSBtools Mipf Extend0 LSfitNonNeg DummyDuplicated
-#' @importFrom Matrix crossprod
+#' @importFrom SSBtools Mipf Extend0 LSfitNonNeg DummyDuplicated Reduce0exact
+#' @importFrom Matrix crossprod rowSums colSums
 #' @export
 #'
 #' @examples
@@ -74,7 +74,12 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
   
   
   # 3
+  if (is.null(hierarchies) & is.null(formula) & is.null(dimVar)) {
+    dimVar <- names(data)
+    dimVar <- dimVar[!(dimVar %in% c(freqVar, rKeyVar))]
+  }
   mm <- ModelMatrix(data = data, hierarchies = hierarchies, formula = formula, crossTable = TRUE, dimVar = dimVar, ...)
+  
   
   if (is.null(freqVar)) {
     data[newfreq] <- 1L
@@ -89,20 +94,31 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
     a <- CellKey(data = data, freqVar = freqVar, rKeyVar = rKeyVar, preAggregate = FALSE, 
                  x = mm$modelMatrix, crossTable = mm$crossTable, ...)
   }
-  
-  dd <- DummyDuplicated(mm$modelMatrix)
-  
+
   # 5
-  lsFit <- LSfitNonNeg(mm$modelMatrix[, !dd, drop=FALSE], Matrix(a$perturbed[!dd], ncol = 1), limit = limit, viaQR = viaQR)
-  
+  dd_idx <- DummyDuplicated(mm$modelMatrix, idx = TRUE)
+  udd <- unique(dd_idx)
+  lsFit <- Matrix(NaN, nrow(a))
+  lsFit[udd, 1] <- LSfitNonNeg(mm$modelMatrix[, udd, drop = FALSE], Matrix(a$perturbed[udd], ncol = 1), limit = limit, viaQR = viaQR)
+  lsFit <- lsFit[dd_idx, 1, drop = FALSE] 
   
   # 6
-  ipFit <- Mipf(mm$modelMatrix[, !dd, drop=FALSE], z = lsFit, iter = iter, eps = eps, tol = tol, 
-                reduceBy0 = reduceBy0, reduceByColSums = reduceByColSums, reduceByLeverage = reduceByLeverage)
-  
+  if (min(rowSums(mm$modelMatrix[, colSums(mm$modelMatrix) == 1, drop = FALSE])) > 0) {
+    cat("- Mipf not needed -")
+    r0e <- Reduce0exact(mm$modelMatrix, z = lsFit, reduceByColSums = TRUE)
+    if (any(!r0e$yKnown)) {
+      stop("Something is wrong")
+    }
+    ipFit <- r0e$y
+  } else {
+    ipFit <- Mipf(mm$modelMatrix, z = lsFit, iter = iter, eps = eps, tol = tol, reduceBy0 = reduceBy0, 
+                  reduceByColSums = reduceByColSums, reduceByLeverage = reduceByLeverage, altSplit = TRUE)
+  }
   
   data <- list(inner = cbind(data, ipFit = as.vector(ipFit)), 
-               publish = cbind(a,  ipFit = as.vector(crossprod(mm$modelMatrix, ipFit)))) # lsFit don’t match since dd
+               publish = cbind(a,  lsFit = as.vector(lsFit), ipFit = as.vector(crossprod(mm$modelMatrix, ipFit))))
+  
+  cat("\n")
   
   if (xReturn) {
     names(mm)[1] <- "x"
@@ -115,7 +131,3 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
   data
 }                           
  
-
-
-
-
