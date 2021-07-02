@@ -17,8 +17,8 @@
 #' @param total	String used to name totals
 #' @param x Dummy matrix defining cells to be published (possible as input instead of generated)
 #' @param crossTable	Data frame to accompany `x` when `x` is input.  
-#' @param xReturn	Dummy matrix in output when TRUE (as input parameter x)
-#' @param innerReturn	Input data in output when TRUE (possibly pre-aggregated)  
+#' @param xReturn	Dummy matrix in output when `TRUE` (as input parameter x)
+#' @param innerReturn	Input data in output when `TRUE` (possibly pre-aggregated). To return only inner data, use `innerReturn = 1`.   
 #' @param D \code{\link{pt_create_pParams}} parameter
 #' @param V \code{\link{pt_create_pParams}} parameter
 #' @param js \code{\link{pt_create_pParams}} parameter
@@ -66,6 +66,8 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                             D=5, V=3, js=2, pstay = NULL, rndSeed = 123){
 
   force(preAggregate)
+  
+  names_data <- names(data)
     
   # Ensure character (integer possible input) 
   freqVar <- names(data[1, freqVar, drop = FALSE])
@@ -114,7 +116,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     flush.console()
     if (innerReturn) {
       if (freqVar == "f_Re_qVa_r") {
-        if (!("freq" %in% names(data))) {
+        if (!("freq" %in% names_data)) {
           names(data)[names(data) == freqVar] <- "freq"
           freqVar <- "freq"
         }
@@ -124,6 +126,12 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
   } else {
     if (innerReturn) {
       inner <- list(inner = data[, c(dVar, freqVar, rKeyVar), drop = FALSE])
+    }
+  }
+  
+  if (is.numeric(innerReturn)) {
+    if (innerReturn == 1) {
+      return(inner$inner)
     }
   }
   
