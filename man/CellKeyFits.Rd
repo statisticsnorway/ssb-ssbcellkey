@@ -42,7 +42,7 @@ CellKeyFits(
 
 \item{xReturn}{Dummy matrix in output when \code{TRUE}. To return crossTable as well, use \code{xReturn = 2}.}
 
-\item{extend0}{Whether to extend data automatically by \code{Extend0}}
+\item{extend0}{Data is automatically extended by \code{Extend0} when \code{TRUE}. Can also be specified as a list meaning parameter \code{varGroups} to \code{Extend0}.}
 
 \item{limit}{\code{LSfitNonNeg} parameter}
 
@@ -92,5 +92,10 @@ CellKeyFits(z4, "freq", "keys", formula = ~eu * year + geo)
 
 my_km2 <- SSBtools::SSBtoolsData("my_km2")
 
-CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
+# Default automatic extension (extend0 = TRUE)
+CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)
+
+# Manual specification to avoid Nittedal combined with another_km
+CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m, 
+            extend0 = list(c("Sex", "Age"), c("Municipality", "Square1000m", "Square250m")))
 }

@@ -17,7 +17,7 @@
 #' @param dimVar Dimensional variables
 #' @param preAggregate Aggregation
 #' @param xReturn	Dummy matrix in output when `TRUE`. To return crossTable as well, use `xReturn = 2`.
-#' @param extend0  Whether to extend data automatically by `Extend0`
+#' @param extend0  Data is automatically extended by `Extend0` when `TRUE`. Can also be specified as a list meaning parameter `varGroups` to `Extend0`.
 #' @param limit `LSfitNonNeg` parameter
 #' @param viaQR `LSfitNonNeg` parameter 
 #' @param iter `Mipf` parameter
@@ -50,7 +50,12 @@
 #' 
 #' my_km2 <- SSBtools::SSBtoolsData("my_km2")
 #' 
-#' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)  
+#' # Default automatic extension (extend0 = TRUE)
+#' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)
+#' 
+#' # Manual specification to avoid Nittedal combined with another_km
+#' CellKeyFits(my_km2, "freq", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m, 
+#'             extend0 = list(c("Sex", "Age"), c("Municipality", "Square1000m", "Square250m")))
 CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL, formula = NULL, dimVar = NULL, 
                         preAggregate = is.null(freqVar), xReturn = FALSE, 
                         extend0 = TRUE, 
@@ -68,6 +73,13 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
     newfreq <- "f_Re_qVa_r"
   } else {
     newfreq <- "freq"
+  }
+  
+  if (is.list(extend0)) {
+    varGroups <- extend0
+    extend0 <- TRUE
+  } else {
+    varGroups <- NULL
   }
   
   if (preAggregate | extend0) {
@@ -89,7 +101,7 @@ CellKeyFits <- function(data, freqVar = NULL, rKeyVar = NULL, hierarchies = NULL
       if (!(extraVar %in% names(data))) {
         extraVar <- FALSE
       } 
-      data <- Extend0(data, freqVar,  extraVar = extraVar)
+      data <- Extend0(data, freqVar,  varGroups = varGroups, extraVar = extraVar)
     }
   } else {
     nrowOrig <- nrow(data)
