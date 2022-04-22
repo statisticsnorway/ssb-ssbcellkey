@@ -17,7 +17,7 @@
 #' @return Output is a mxn matrix, where rows correspond to m possible noise
 #' factors, and columns correspond to n possible data-driven components.
 #' @export
-#' 
+#'
 #' @author Daniel P. Lupp, Hege Marie Bøvelstad
 #'
 #' @examples
@@ -54,12 +54,12 @@
 #' plot(x = as.numeric(rownames(a3)), y = a3[,1])
 #' plot(x = as.numeric(rownames(a4)), y = a4[,4])
 generate_prob_matrix <- function(D,
-                                step,
-                                dcomponent,
-                                noisefunction,
-                                minpositive = 1,
-                                percnoise = FALSE,
-                                ...) {
+                                 step,
+                                 dcomponent,
+                                 noisefunction,
+                                 minpositive = 1,
+                                 percnoise = FALSE,
+                                 ...) {
   if (!is.function(noisefunction))
     stop("The parameter noisefunction must be a function.")
   if (!("..." %in% names(formals(noisefunction))))
@@ -99,7 +99,7 @@ generate_prob_matrix <- function(D,
 #'
 #' @examples
 #' dcomponent <- seq(from = 50, to = 100, by = 10)
-#' a <-  generate_prob_table(
+#' a4 <-  generate_prob_matrix(
 #'     D = 15,
 #'     step = 1,
 #'     dcomponent,
@@ -109,7 +109,7 @@ generate_prob_matrix <- function(D,
 #'       x / 10,
 #'     percnoise = TRUE
 #'   )
-#' generate_lookup_table(a, 256,dcomponent/100)
+#' a <- generate_lookup_table(a4, 16, dcomponent/100)
 generate_lookup_table <- function(probmatrix,
                                   ncellkeys,
                                   datacomponents,
@@ -133,5 +133,34 @@ generate_lookup_table <- function(probmatrix,
   }
   colnames(lookup) <- datacomponents
   rownames(lookup) <- 0:(ncellkeys - 1)
-  return(lookup)
+  lookup
+}
+
+retrieve_noise <- function(prob_table, keys, ddc) {
+  key_lookup <- match(keys, rownames(prob_table))
+  ddc_lookup <- match(ddc, colnames(prob_table))
+  mapply(function(x, y) prob_table[x, y],
+         key_lookup, ddc_lookup)
+}
+
+truncate_int_by_bit <- function(ints, nobits = 8) {
+  b <- sapply(ints, function(x)
+    as.integer(intToBits(x)))
+  nobits <- min(32, nobits)
+  b <- matrix(b[1:nobits,], ncol = length(ints))
+  apply(b, 2, function(y)
+    ifelse(all(y == 0), 0, Reduce(sum, sapply(which(y > 0) - 1, function(x)
+      2 ^ x))))
+}
+
+aggregate_bitkeys <- function(rkeys,
+                             pop.key = NULL,
+                             trunc.bit = 8) {
+  if (!is.null(pop.key))
+    return(bitwXor(pop.key,
+                   Reduce(
+                     bitwXor,
+                     truncate_int_by_bit(rkeys, nobits = trunc.bit)
+                   )))
+  Reduce(bitwXor, truncate_int_by_bit(rkeys, nobits = trunc.bit))
 }
