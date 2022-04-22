@@ -146,6 +146,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     }
     rkeys <- runif(NROW(data))
     rKeyVar <- "rKeyVar"
+    bitkey <- truncate_int_by_bit(rkeys * 1e7)
   } else {
     rkeys <- data[, rKeyVar]
   }
@@ -177,7 +178,10 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
   flush.console()
   # rKey <- Matrix::crossprod(mm$modelMatrix, rkeys)[, 1, drop = TRUE] %%1 
   # More general calculation with DummyApply and FUNaggregate
+  pop.key <- Reduce(bitwXor, bitkey)
   rKey <- DummyApply(mm$modelMatrix, rkeys, FUNaggregate)
+  bitkey <- DummyApply(mm$modelMatrix, as.vector(bitkey),
+                       function(x) aggregate_bitkeys(x, pop.key = pop.key))
   cat("]")
   flush.console()
   
@@ -207,20 +211,30 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     rKey <- (as.numeric(rKey) + 0.5)/256
     rKeyVar <- paste0("unif_", rKeyVar)
   } else {
-    bitkey <- matrix("0", nrow = length(rKey), ncol = 0)
+    # bitkey <- matrix("0", nrow = length(rKey), ncol = 0)
   }
   
   pMatrix <- Pmatrix(D = D, V = V, js = js, pstay = pstay)
+  
+  a2 <- generate_prob_matrix(D = 5,
+                            step = 1,
+                            dcomponent = 1:5,
+                            noisefunction = freq_maxentropy)
+  lutable <- generate_lookup_table(a2,256,1:5)
   
   cat(".")
   flush.console()
   
   perturbed <- Pconvert(original, pMatrix, rKey)
+  bit.perturbed <- perturb(keys = bitkey,
+                           values = original, 
+                           ptable = lutable,
+                           ddc.function = function(x) x %% 5 + 1)
   
   cat(".")
   flush.console()
   
-  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, perturbed = perturbed, bitkey, r_Ke_yVa_r = rKey)
+  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, perturbed = perturbed, bitkey, bit.perturbed = bit.perturbed, r_Ke_yVa_r = rKey)
   cat("]\n")
   flush.console()
   names(data)[NCOL(data)] <- rKeyVar

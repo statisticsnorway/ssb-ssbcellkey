@@ -23,8 +23,8 @@
 #' @examples
 #' a1 <- generate_prob_matrix(D = 3,
 #'                           step = 1,
-#'                           dcomponent = 1:5,
-#'                           noisefunction = normal_noise2)
+#'                           dcomponent = 0:5,
+#'                           noisefunction = normal_noise)
 #' a2 <- generate_prob_matrix(D = 3,
 #'                           step = 1,
 #'                           dcomponent = 1:5,
@@ -143,7 +143,14 @@ retrieve_noise <- function(prob_table, keys, ddc) {
          key_lookup, ddc_lookup)
 }
 
+perturb <- function(keys, values, ptable, ddc.function = function(x) x) {
+  ddc <- ddc.function(values)
+  values + retrieve_noise(ptable, keys, ddc)
+}
+
 truncate_int_by_bit <- function(ints, nobits = 8) {
+  if (!length(ints))
+    return(NULL)
   b <- sapply(ints, function(x)
     as.integer(intToBits(x)))
   nobits <- min(32, nobits)
@@ -158,9 +165,9 @@ aggregate_bitkeys <- function(rkeys,
                              trunc.bit = 8) {
   if (!is.null(pop.key))
     return(bitwXor(pop.key,
-                   Reduce(
+                   as.integer(Reduce(
                      bitwXor,
                      truncate_int_by_bit(rkeys, nobits = trunc.bit)
-                   )))
+                   ))))
   Reduce(bitwXor, truncate_int_by_bit(rkeys, nobits = trunc.bit))
 }
