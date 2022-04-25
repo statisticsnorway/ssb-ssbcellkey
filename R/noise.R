@@ -73,7 +73,7 @@ split_triangular <- function(noisefactor,
                              ddc2noise = NULL,
                              ...) {
   if (!is.null(ddc2noise) & is.function(ddc2noise))
-    ddc <- ddc2noise(ddc)
+    ddc <- sapply(ddc, ddc2noise)
   if (abs(ddc) > max(abs(noisefactor)))
     stop(
       "The data component is not aligned with possible noise factors. Please reconsider your parameters."

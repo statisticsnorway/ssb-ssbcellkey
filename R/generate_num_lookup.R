@@ -4,7 +4,7 @@
 #'
 #' @param D numeric scalar, describing maximum noise
 #' @param step numeric scalar, determinng step width for noise
-#' @param dcomponent data driven component used to calculate noise distribution
+#' @param datacomponents data driven component used to calculate noise distribution
 #' @param noisefunction function to calculate noise distribution among elements
 #'  of noisefactor, based on dcomponent.
 #' @param minpositive numeric scalar describing lowest positive value after
@@ -55,7 +55,7 @@
 #' plot(x = as.numeric(rownames(a4)), y = a4[,4])
 generate_prob_matrix <- function(D,
                                  step,
-                                 dcomponent,
+                                 datacomponents,
                                  noisefunction,
                                  minpositive = 1,
                                  percnoise = FALSE,
@@ -69,16 +69,16 @@ generate_prob_matrix <- function(D,
   prob_matrix <-
     matrix(NA,
            nrow = length(noisefactor),
-           ncol = length(dcomponent))
+           ncol = length(datacomponents))
   rownames(prob_matrix) <- noisefactor
-  colnames(prob_matrix) <- dcomponent
-  for (i in dcomponent) {
-    prob_matrix[, match(i, dcomponent)] <-
+  colnames(prob_matrix) <-datacomponents 
+  for (i in datacomponents) {
+    prob_matrix[, match(i, datacomponents)] <-
       noisefunction(ddc = i, noisefactor = noisefactor, minpositive, ...)
   }
   if (percnoise) {
     rownames(prob_matrix) <- noisefactor / 100
-    colnames(prob_matrix) <- dcomponent / 100
+    colnames(prob_matrix) <- datacomponents / 100
   }
   prob_matrix
 }
@@ -113,7 +113,8 @@ generate_prob_matrix <- function(D,
 generate_lookup_table <- function(probmatrix,
                                   ncellkeys,
                                   datacomponents,
-                                  seed = 123) {
+                                  seed = 123,
+                                  ...) {
   set.seed(seed)
   x <- as.numeric(rownames(probmatrix))
   nc <- ncol(probmatrix)
@@ -139,13 +140,14 @@ generate_lookup_table <- function(probmatrix,
 retrieve_noise <- function(prob_table, keys, ddc) {
   key_lookup <- match(keys, rownames(prob_table))
   ddc_lookup <- match(ddc, colnames(prob_table))
+  # print(ddc_lookup)
   mapply(function(x, y) prob_table[x, y],
          key_lookup, ddc_lookup)
 }
 
 perturb <- function(keys, values, ptable, ddc.function = function(x) x) {
   ddc <- ddc.function(values)
-  values + retrieve_noise(ptable, keys, ddc)
+  retrieve_noise(ptable, keys, ddc)
 }
 
 truncate_int_by_bit <- function(ints, nobits = 8) {

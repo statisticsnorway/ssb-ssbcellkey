@@ -58,12 +58,16 @@
 #' my_km2$keys <- runif(nrow(my_km2))
 #' CellKey(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
 CellKey <- function(data, freqVar=NULL, rKeyVar=NULL, 
-                            hierarchies = NULL, formula = NULL, dimVar = NULL, 
-                            preAggregate = is.null(freqVar),
-                            total = "Total", 
-                            x = NULL, crossTable = NULL,
-                            xReturn = FALSE, innerReturn = FALSE,
-                            D=5, V=3, js=2, pstay = NULL, rndSeed = 123){
+                    hierarchies = NULL, formula = NULL, dimVar = NULL, 
+                    preAggregate = is.null(freqVar),
+                    total = "Total", 
+                    x = NULL, crossTable = NULL,
+                    xReturn = FALSE, innerReturn = FALSE,
+                    ddc.function = function(x) x,
+                    relativeNoise = FALSE,
+                    noisefunction = NULL,
+                    usePTable = FALSE,
+                    D=5, V=3, js=2, pstay = NULL, rndSeed = 123, ...){
 
   force(preAggregate)
   
@@ -180,7 +184,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
   # More general calculation with DummyApply and FUNaggregate
   pop.key <- Reduce(bitwXor, bitkey)
   rKey <- DummyApply(mm$modelMatrix, rkeys, FUNaggregate)
-  bitkey <- DummyApply(mm$modelMatrix, as.vector(bitkey),
+  cellkey <- DummyApply(mm$modelMatrix, as.vector(bitkey),
                        function(x) aggregate_bitkeys(x, pop.key = pop.key))
   cat("]")
   flush.console()
@@ -203,7 +207,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     return(data)
   }
   
-  cat(".ptable.")
+  cat(".perturb.")
   flush.console()
   
   if (is.character(rKey)) {
@@ -213,31 +217,63 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
   } else {
     # bitkey <- matrix("0", nrow = length(rKey), ncol = 0)
   }
+  if (usePTable) {
+    pMatrix <- Pmatrix(D = D, V = V, js = js, pstay = pstay)
+    perturbed <- Pconvert(original, pMatrix, rKey)
+    prt <- NULL
+  }
+  else {
+    mm <<- mm
+    original <<- original
+    probmat <-  generate_prob_matrix(
+      D = D,
+      step = js,
+      noisefunction = noisefunction,
+      width = 5,
+      percnoise = relativeNoise,
+      ...
+    )
+    lutable <- generate_lookup_table(probmat, 256, seed = rndSeed, ...)
+    lutable <<- lutable
+    # print(prt)
+    if (!relativeNoise) {
+      prt <- perturb(keys = cellkey,
+               values = original, 
+               ptable = lutable,
+               ddc.function = ddc.function)
+      perturbed <- original + prt
+    }
+    else {
+      # turn this into a function call on ddc.function using standard interface
+      dominance <- as.integer(DominanceRule(data,
+                                 mm$modelMatrix,
+                                 mm$crossTable,
+                                 freqVar,
+                                 n = c(1,2),
+                                 k = c(90,95)))
+      topk <- MaxContribution(x = mm$modelMatrix, 
+                              y = data[[freqVar]], 
+                              n = 2, 
+                              index = TRUE)
+      relnoise <- topk2
+      for (i in seq_len(nrow(topk))){
+        relnoise[i,] <-
+          retrieve_noise(prob_table = lutable, 
+                         keys = topk2[i,], 
+                         ddc = rep(dominance[i], 2))
+      }
+      prt <- relnoise * apply(topk, 2, function(x) data[x, freqVar])
+      prt[is.na(prt)] <- 0
+      prt <- rowSums(prt)
+       perturbed <- original + prt 
+    }
+    rKey <- cellkey
+  }
   
-  pMatrix <- Pmatrix(D = D, V = V, js = js, pstay = pstay)
-  
-  a2 <- generate_prob_matrix(D = 5,
-                            step = 1,
-                            dcomponent = 1:5,
-                            noisefunction = freq_maxentropy)
-  lutable <- generate_lookup_table(a2,256,1:5)
-  
-  cat(".")
-  flush.console()
-  
-  perturbed <- Pconvert(original, pMatrix, rKey)
-  bit.perturbed <- perturb(keys = bitkey,
-                           values = original, 
-                           ptable = lutable,
-                           ddc.function = function(x) x %% 5 + 1)
-  
-  cat(".")
-  flush.console()
-  
-  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, perturbed = perturbed, bitkey, bit.perturbed = bit.perturbed, r_Ke_yVa_r = rKey)
+  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, key = rKey, perturbation = prt, perturbed.value = perturbed)#, perturbed = perturbed, r_Ke_yVa_r = rKey)
   cat("]\n")
   flush.console()
-  names(data)[NCOL(data)] <- rKeyVar
+  # names(data)[NCOL(data)] <- rKeyVar
   rownames(data) <- NULL
   if (xReturn | innerReturn) {
     return(c(list(publish = data), inner, x))
