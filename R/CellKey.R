@@ -18,6 +18,7 @@
 #' @param x Dummy matrix defining cells to be published (possible as input instead of generated)
 #' @param crossTable	Data frame to accompany `x` when `x` is input.  
 #' @param xReturn	Dummy matrix in output when `TRUE` (as input parameter x)
+#' @param k number of top contributors to be considered in relative noise
 #' @param innerReturn	Input data in output when `TRUE` (possibly pre-aggregated). To return only inner data, use `innerReturn = 1`.   
 #' @param D \code{\link{pt_create_pParams}} parameter
 #' @param V \code{\link{pt_create_pParams}} parameter
@@ -65,6 +66,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                     xReturn = FALSE, innerReturn = FALSE,
                     ddc.function = function(x) x,
                     relativeNoise = FALSE,
+                    k = 1,
                     noisefunction = NULL,
                     usePTable = FALSE,
                     D=5, V=3, js=2, pstay = NULL, rndSeed = 123, ...){
@@ -244,23 +246,18 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
       perturbed <- original + prt
     }
     else {
-      # turn this into a function call on ddc.function using standard interface
-      dominance <- as.integer(DominanceRule(data,
-                                 mm$modelMatrix,
-                                 mm$crossTable,
-                                 freqVar,
-                                 n = c(1,2),
-                                 k = c(90,95)))
+      ddc <- ddc.function(data = data, hierarchies = hierarchies, formula = formula, crossTable = mm$crossTable, x = mm$modelMatrix, total = total, dimVar = dimVar, freqVar = freqVar, ...)
       topk <- MaxContribution(x = mm$modelMatrix, 
-                              y = data[[freqVar]], 
-                              n = 2, 
+                              y = data[[freqVar]],
+                              n = k,
                               index = TRUE)
-      relnoise <- topk2
+
+      relnoise <- topk
       for (i in seq_len(nrow(topk))){
         relnoise[i,] <-
           retrieve_noise(prob_table = lutable, 
-                         keys = topk2[i,], 
-                         ddc = rep(dominance[i], 2))
+                         keys = topk[i,], 
+                         ddc = rep(ddc[i], k))
       }
       prt <- relnoise * apply(topk, 2, function(x) data[x, freqVar])
       prt[is.na(prt)] <- 0
