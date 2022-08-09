@@ -41,6 +41,25 @@ normal_noise <- function(noisefactor,
   output
 }
 
+laplace_noise <- function(noisefactor,
+                          ddc,
+                          split = 0,
+                          scale = 2) {
+  output <- rep(0, length(noisefactor))
+  names(output) <- noisefactor
+  m <- max(abs(max(noisefactor)), abs(min(noisefactor)))
+  m <- m-split
+  nf <- noisefactor[abs(noisefactor) <= m]
+  l <- LaplacesDemon::dtrunc(nf, 
+                        "laplace",
+                        a = min(nf), 
+                        b = max(nf),
+                        location = 0,
+                        scale = scale)
+  output[noisefactor <= -split] <- l[1:(floor(length(l)/2) + 1)]
+  output[noisefactor >= split] <- l[(floor(length(l)/2) + 1):length(l)]
+  output
+}
 
 #' Symmetric two peak triangular noise.
 #'
@@ -69,7 +88,7 @@ normal_noise <- function(noisefactor,
 #' plot(x = nf, y = p2)
 split_triangular <- function(noisefactor,
                              ddc,
-                             width = ddc / 3,
+                             width = ddc/3,
                              ddc2noise = NULL,
                              ...) {
   if (!is.null(ddc2noise) & is.function(ddc2noise))

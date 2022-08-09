@@ -23,15 +23,15 @@
 #' @examples
 #' a1 <- generate_prob_matrix(D = 3,
 #'                           step = 1,
-#'                           dcomponent = 0:5,
+#'                           datacomponents = 0:5,
 #'                           noisefunction = normal_noise)
 #' a2 <- generate_prob_matrix(D = 3,
 #'                           step = 1,
-#'                           dcomponent = 1:5,
+#'                           datacomponents = 1:5,
 #'                           noisefunction = freq_maxentropy)
 #' a3 <- generate_prob_matrix(D = 3,
 #'                           step = 1,
-#'                           dcomponent = 1:5,
+#'                           datacomponents = 1:5,
 #'                           minpositive = 2,
 #'                           noisefunction = freq_maxentropy)
 #'
