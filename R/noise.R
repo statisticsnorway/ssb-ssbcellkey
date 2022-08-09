@@ -44,7 +44,10 @@ normal_noise <- function(noisefactor,
 laplace_noise <- function(noisefactor,
                           ddc,
                           split = 0,
-                          scale = 2) {
+                          scale = 2,
+                          ...) {
+     if (is.function(split))
+      split <- sapply(ddc, split)
   output <- rep(0, length(noisefactor))
   names(output) <- noisefactor
   m <- max(abs(max(noisefactor)), abs(min(noisefactor)))
