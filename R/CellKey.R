@@ -65,6 +65,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                     x = NULL, crossTable = NULL,
                     xReturn = FALSE, innerReturn = FALSE,
                     ddc.function = function(x) x,
+                    flex.function = function(x) 1,
                     relativeNoise = FALSE,
                     k = 1,
                     noisefunction = NULL,
@@ -259,15 +260,15 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                          keys = topk[i,], 
                          ddc = rep(ddc[i], k))
       }
-      prt <- relnoise * apply(topk, 2, function(x) data[x, freqVar])
+      prt <- flex.function(original) * relnoise * apply(topk, 2, function(x) data[x, freqVar])
       prt[is.na(prt)] <- 0
       prt <- rowSums(prt)
-       perturbed <- original + prt 
+       perturbed <- original + prt
     }
     rKey <- cellkey
   }
   
-  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, key = rKey, perturbation = prt, perturbed.value = perturbed)#, perturbed = perturbed, r_Ke_yVa_r = rKey)
+  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, key = rKey, perturbation = prt, perturbed.value = perturbed, ddc = ddc)#, perturbed = perturbed, r_Ke_yVa_r = rKey)
   cat("]\n")
   flush.console()
   # names(data)[NCOL(data)] <- rKeyVar
