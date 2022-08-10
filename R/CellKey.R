@@ -68,6 +68,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                     flex.function = function(x) 1,
                     relativeNoise = FALSE,
                     k = 1,
+                    m = rep(1, k),
                     noisefunction = NULL,
                     usePTable = FALSE,
                     D=5, V=3, js=2, pstay = NULL, rndSeed = 123, ...){
@@ -260,7 +261,10 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
                          keys = topk[i,], 
                          ddc = rep(ddc[i], k))
       }
-      prt <- flex.function(original) * relnoise * apply(topk, 2, function(x) data[x, freqVar])
+      flex <- flex.function(original)
+      if (length(m) != k)
+        stop("m must have length k.")
+      prt <- m * flex * relnoise * apply(topk, 2, function(x) data[x, freqVar])
       prt[is.na(prt)] <- 0
       prt <- rowSums(prt)
        perturbed <- original + prt
@@ -268,7 +272,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     rKey <- cellkey
   }
   
-  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, key = rKey, perturbation = prt, perturbed.value = perturbed, ddc = ddc)#, perturbed = perturbed, r_Ke_yVa_r = rKey)
+  data <- cbind(as.data.frame(mm$crossTable, stringsAsFactors = FALSE), original = original, key = rKey, perturbation = prt, relnoise = relnoise, flex = flex, perturbed = perturbed, ddc = ddc)#, perturbed = perturbed, r_Ke_yVa_r = rKey)
   cat("]\n")
   flush.console()
   # names(data)[NCOL(data)] <- rKeyVar
