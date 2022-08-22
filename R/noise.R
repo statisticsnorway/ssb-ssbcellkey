@@ -159,7 +159,7 @@ freq_maxentropy <- function(noisefactor,
 #' @param maxit 
 #'
 #' @return
-#' 
+#' @importFrom stats dpois
 #' @author Johan Heldal
 #'
 #' @examples

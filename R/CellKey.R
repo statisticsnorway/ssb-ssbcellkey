@@ -35,6 +35,7 @@
 #' @importFrom stats runif aggregate as.formula delete.response terms
 #' @importFrom utils flush.console
 #' @importFrom Matrix Matrix   
+#' @importFrom GaussSuppression MaxContribution
 #' @export
 #'
 #' @examples
@@ -249,7 +250,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     }
     else {
       ddc <- ddc.function(data = data, hierarchies = hierarchies, formula = formula, crossTable = mm$crossTable, x = mm$modelMatrix, total = total, dimVar = dimVar, freqVar = freqVar, ...)
-      topk <- MaxContribution(x = mm$modelMatrix, 
+      topk <- GaussSuppression::MaxContribution(x = mm$modelMatrix, 
                               y = data[[freqVar]],
                               n = k,
                               index = TRUE)

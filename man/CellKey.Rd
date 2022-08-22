@@ -17,11 +17,19 @@ CellKey(
   crossTable = NULL,
   xReturn = FALSE,
   innerReturn = FALSE,
+  ddc.function = function(x) x,
+  flex.function = function(x) 1,
+  relativeNoise = FALSE,
+  k = 1,
+  m = rep(1, k),
+  noisefunction = NULL,
+  usePTable = FALSE,
   D = 5,
   V = 3,
   js = 2,
   pstay = NULL,
-  rndSeed = 123
+  rndSeed = 123,
+  ...
 )
 }
 \arguments{
@@ -50,6 +58,8 @@ Exceptions are \code{"rowFactor"} or \code{""}, which correspond to only using t
 \item{xReturn}{Dummy matrix in output when \code{TRUE} (as input parameter x)}
 
 \item{innerReturn}{Input data in output when \code{TRUE} (possibly pre-aggregated). To return only inner data, use \code{innerReturn = 1}.}
+
+\item{k}{number of top contributors to be considered in relative noise}
 
 \item{D}{\code{\link{pt_create_pParams}} parameter}
 
