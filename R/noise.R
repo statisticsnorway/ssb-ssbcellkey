@@ -41,6 +41,18 @@ normal_noise <- function(noisefactor,
   output
 }
 
+#' Title
+#'
+#' @param noisefactor 
+#' @param ddc 
+#' @param split 
+#' @param scale 
+#' @param ... 
+#'
+#' @return
+#' @export
+#'
+#' @examples
 laplace_noise <- function(noisefactor,
                           ddc,
                           split = 0,
