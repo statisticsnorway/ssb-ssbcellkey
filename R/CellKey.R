@@ -30,7 +30,7 @@
 #'         A list when `xReturn` and/or `innerReturn` is `TRUE` (main output named as `"publish"`).
 #' 
 #' 
-#' @importFrom SSBtools FindHierarchies ModelMatrix
+#' @importFrom SSBtools FindHierarchies ModelMatrix DummyApply
 #' @importFrom stats runif aggregate as.formula delete.response terms
 #' @importFrom utils flush.console
 #' @importFrom Matrix Matrix   

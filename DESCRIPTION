@@ -1,17 +1,16 @@
 Package: SSBcellKey
 Type: Package
 Title: Cell-Key Method for Tabular Data
-Version: 0.0.2
-Date: 2021-06-30
+Version: 0.0.3
+Date: 2023-01-18
 Authors@R: c(person("Øyvind", "Langsrud", role = c("aut", "cre"),
                     email = "oyl@ssb.no"),
              person("Daniel", "Lupp", role = c("aut")))
 Maintainer: Øyvind Langsrud <oyl@ssb.no>
 Depends: Matrix
-Imports: SSBtools, stats, methods, utils, ptable
+Imports: SSBtools (>= 1.3.4), stats, methods, utils, ptable
 Description: A statistical disclosure control tool to perturb frequency tables by the cell-key method.
 License: Apache License 2.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
-
+RoxygenNote: 7.2.2
