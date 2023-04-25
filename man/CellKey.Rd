@@ -51,13 +51,13 @@ Exceptions are \code{"rowFactor"} or \code{""}, which correspond to only using t
 
 \item{innerReturn}{Input data in output when \code{TRUE} (possibly pre-aggregated). To return only inner data, use \code{innerReturn = 1}.}
 
-\item{D}{\code{\link{pt_create_pParams}} parameter}
+\item{D}{\code{\link{create_cnt_ptable}} parameter}
 
-\item{V}{\code{\link{pt_create_pParams}} parameter}
+\item{V}{\code{\link{create_cnt_ptable}} parameter}
 
-\item{js}{\code{\link{pt_create_pParams}} parameter}
+\item{js}{\code{\link{create_cnt_ptable}} parameter}
 
-\item{pstay}{\code{\link{pt_create_pParams}} parameter}
+\item{pstay}{\code{\link{create_cnt_ptable}} parameter}
 
 \item{rndSeed}{If non-NULL, a random generator seed to be used locally within the function without affecting the random value stream in R.
 This parameter applies when \code{rKeyVar} is not supplied.}

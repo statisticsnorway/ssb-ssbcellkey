@@ -26,7 +26,7 @@
 #' @param reduceBy0 `Mipf` parameter
 #' @param reduceByColSums `Mipf` parameter
 #' @param reduceByLeverage `Mipf` parameter
-#' @param ... Further parameters to \code{\link{CellKey}}. Relevant parameters: `total`, `rndSeed` and parameters to \code{\link{pt_create_pParams}}
+#' @param ... Further parameters to \code{\link{CellKey}}. Relevant parameters: `total`, `rndSeed` and parameters to \code{\link{create_cnt_ptable}}
 #' 
 #' @return A two-element list: 
 #'    \item{inner}{Data frame corresponding to input data with expected frequencies (`ipFit`).}

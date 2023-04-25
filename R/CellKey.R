@@ -19,10 +19,10 @@
 #' @param crossTable	Data frame to accompany `x` when `x` is input.  
 #' @param xReturn	Dummy matrix in output when `TRUE` (as input parameter x)
 #' @param innerReturn	Input data in output when `TRUE` (possibly pre-aggregated). To return only inner data, use `innerReturn = 1`.   
-#' @param D \code{\link{pt_create_pParams}} parameter
-#' @param V \code{\link{pt_create_pParams}} parameter
-#' @param js \code{\link{pt_create_pParams}} parameter
-#' @param pstay \code{\link{pt_create_pParams}} parameter
+#' @param D \code{\link{create_cnt_ptable}} parameter
+#' @param V \code{\link{create_cnt_ptable}} parameter
+#' @param js \code{\link{create_cnt_ptable}} parameter
+#' @param pstay \code{\link{create_cnt_ptable}} parameter
 #' @param rndSeed If non-NULL, a random generator seed to be used locally within the function without affecting the random value stream in R.
 #'                This parameter applies when `rKeyVar` is not supplied.
 #'

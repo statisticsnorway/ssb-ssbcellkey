@@ -24,7 +24,7 @@ Probability matrix
 The matrix of cumulative probabilities (default) can be input to \code{\link{Pconvert}}
 }
 \details{
-With doCumSum = FALSE, output is "pMatrix" created by \code{create_cnt_ptable}
+With doCumSum = FALSE, output is "tMatrix" created by \code{create_cnt_ptable}
 }
 \examples{
 Pmatrix(D=3, V=3, pstay= 0.5, doCumSum = FALSE)

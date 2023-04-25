@@ -2,7 +2,7 @@
 #' 
 #' The matrix of cumulative probabilities (default) can be input to \code{\link{Pconvert}}
 #' 
-#' With doCumSum = FALSE, output is "pMatrix" created by \code{create_cnt_ptable}
+#' With doCumSum = FALSE, output is "tMatrix" created by \code{create_cnt_ptable}
 #'
 #' @param D \code{create_cnt_ptable} parameter
 #' @param V \code{create_cnt_ptable} parameter
@@ -22,7 +22,7 @@
 Pmatrix <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
   if (requireNamespace("ptable", quietly = TRUE)) {
     pTable <- ptable::create_cnt_ptable(D = D, V = V, js = js, ...)
-    pMatrix <- slot(pTable, "pMatrix")
+    pMatrix <- slot(pTable, "tMatrix") #  slot(pTable, "pMatrix") in earlier version av ptable 
     if (doCumSum) 
       for (i in seq_len(nrow(pMatrix))) pMatrix[i, ] <- cumsum(pMatrix[i, ])
   } else {

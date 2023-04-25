@@ -60,7 +60,7 @@ CellKeyFits(
 
 \item{reduceByLeverage}{\code{Mipf} parameter}
 
-\item{...}{Further parameters to \code{\link{CellKey}}. Relevant parameters: \code{total}, \code{rndSeed} and parameters to \code{\link{pt_create_pParams}}}
+\item{...}{Further parameters to \code{\link{CellKey}}. Relevant parameters: \code{total}, \code{rndSeed} and parameters to \code{\link{create_cnt_ptable}}}
 }
 \value{
 A two-element list:
