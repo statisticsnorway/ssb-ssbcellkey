@@ -22,7 +22,7 @@
 Pmatrix <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
   if (requireNamespace("ptable", quietly = TRUE)) {
     pTable <- ptable::create_cnt_ptable(D = D, V = V, js = js, ...)
-    pMatrix <- slot(pTable, "tMatrix") #  slot(pTable, "pMatrix") in earlier version av ptable 
+    pMatrix <- slot(pTable, "tMatrix")  # slot(pTable, "pMatrix") in earlier version of ptable 
     if (doCumSum) 
       for (i in seq_len(nrow(pMatrix))) pMatrix[i, ] <- cumsum(pMatrix[i, ])
   } else {
