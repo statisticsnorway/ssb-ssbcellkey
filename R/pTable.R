@@ -20,10 +20,10 @@
 #' Pmatrix(D=3, V=3, pstay= 0.5, doCumSum = FALSE)
 #' Pmatrix(D=3, V=3, pstay= 0.5)
 Pmatrix <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
-    pTable <- ptable::create_cnt_ptable(D = D, V = V, js = js, ...)
-    pMatrix <- slot(pTable, "tMatrix")  # slot(pTable, "pMatrix") in earlier version of ptable 
-    if (doCumSum) 
-      for (i in seq_len(nrow(pMatrix))) pMatrix[i, ] <- cumsum(pMatrix[i, ])
+  pTable <- ptable::create_cnt_ptable(D = D, V = V, js = js, ...)
+  pMatrix <- slot(pTable, "tMatrix")  # slot(pTable, "pMatrix") in earlier version of ptable 
+  if (doCumSum) 
+    for (i in seq_len(nrow(pMatrix))) pMatrix[i, ] <- cumsum(pMatrix[i, ])
   
   if (!is.null(rownames(pMatrix))) 
     if (!identical(as.integer(rownames(pMatrix)), 0:(nrow(pMatrix) - 1L))) 
