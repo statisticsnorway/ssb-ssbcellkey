@@ -12,7 +12,7 @@
 #'
 #' @return Probability matrix
 #' @importFrom methods slot
-#' @importFrom ptable pt_create_pParams pt_create_pTable
+#' @importFrom ptable create_cnt_ptable
 #' @export
 #' @author Øyvind Langsrud
 #'
@@ -21,8 +21,6 @@
 #' Pmatrix(D=3, V=3, pstay= 0.5)
 Pmatrix <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
   if (requireNamespace("ptable", quietly = TRUE)) {
-    # pParams <- ptable::pt_create_pParams(D = D, V = V, js = js, step = -1, ...)
-    # pTable <- ptable::pt_create_pTable(params = pParams)
     pTable <- ptable::create_cnt_ptable(D = D, V = V, js = js, ...)
     pMatrix <- slot(pTable, "pMatrix")
     if (doCumSum) 
@@ -37,24 +35,6 @@ Pmatrix <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
   pMatrix
 }
 
-
-# Old code using pt_create_pParams and pt_create_pTable 
-PmatrixOld <- function(D = 5, V = 3, js = 2,..., doCumSum = TRUE) {
-  if (requireNamespace("ptable", quietly = TRUE)) {
-    pParams <- ptable::pt_create_pParams(D = D, V = V, js = js, step = -1, ...)
-    pTable <- ptable::pt_create_pTable(params = pParams)
-    pMatrix <- slot(pTable, "pMatrix")
-    if (doCumSum) 
-      for (i in seq_len(nrow(pMatrix))) pMatrix[i, ] <- cumsum(pMatrix[i, ])
-  } else {
-    pMatrix <- matrix(c(1, 0.37, 0.2, 1, 0.73, 0.4, 1, 0.9, 0.6, 1, 1, 0.8, 1, 1, 1), 3, 5, dimnames = list(0:2, 0:4))
-    warning("Package ptable not available. \"round(Pmatrix(D=2,js=0),2)\" returned. Input parameters ignored.")
-  }
-  if (!is.null(rownames(pMatrix))) 
-    if (!identical(as.integer(rownames(pMatrix)), 0:(nrow(pMatrix) - 1L))) 
-      warning("Unusual rownames. Pconvert may not work.")
-  pMatrix
-}
 
 
 #' Convert counts using pTable
