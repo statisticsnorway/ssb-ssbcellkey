@@ -1,12 +1,12 @@
 Package: SSBcellKey
 Type: Package
 Title: Cell-Key Method for Tabular Data
-Version: 0.0.3
-Date: 2023-04-25
-Authors@R: c(person("Øyvind", "Langsrud", role = c("aut"),
-                    email = "oyl@ssb.no"),
-             person("Daniel", "Lupp", middle = "P.", role = c("aut", "cre"),
+Version: 0.0.4
+Date: 2023-09-11
+Authors@R: c(person("Daniel", "Lupp", middle = "P.", role = c("aut", "cre"),
                     email = "dlu@ssb.no"),
+             person("Øyvind", "Langsrud", role = c("aut"),
+                    email = "oyl@ssb.no"),
              person("Statistics Norway", role = "cph"))
 Maintainer: Daniel P. Lupp <dlu@ssb.no>
 Depends: Matrix
