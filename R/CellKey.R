@@ -13,6 +13,7 @@
 #'        Thus, a single string as hierarchy input is assumed to be a total code. 
 #'        Exceptions are \code{"rowFactor"} or \code{""}, which correspond to only using the categories in the data.
 #' @param dimVar The main dimensional variables and additional aggregating variables. This parameter can be  useful when hierarchies and formula are unspecified. 
+#' @param table character vector defining whether to perturb magnitude ("nums") or frequency("cnts") tables.
 #' @param preAggregate When `TRUE`, the data will be aggregated within the function to an appropriate level. 
 #' @param total	String used to name totals
 #' @param x Dummy matrix defining cells to be published (possible as input instead of generated)
@@ -59,11 +60,14 @@
 #' CellKey(my_km2, "freq", "keys", formula = ~(Sex + Age) * Municipality * Square1000m + Square250m)      
 CellKey <- function(data, freqVar=NULL, rKeyVar=NULL, 
                             hierarchies = NULL, formula = NULL, dimVar = NULL, 
+                    table = "cnts",
                             preAggregate = is.null(freqVar),
                             total = "Total", 
                             x = NULL, crossTable = NULL,
                             xReturn = FALSE, innerReturn = FALSE,
                             D=5, V=3, js=2, pstay = NULL, rndSeed = 123){
+  if (!table %in% c("cnts", "nums"))
+    stop("the `table` parameter must be \"cnts\" or \"nums\"")
 
   force(preAggregate)
   
@@ -210,7 +214,7 @@ CellKey <- function(data, freqVar=NULL, rKeyVar=NULL,
     bitkey <- matrix("0", nrow = length(rKey), ncol = 0)
   }
   
-  pMatrix <- Pmatrix(D = D, V = V, js = js, pstay = pstay)
+  pMatrix <- Pmatrix(D = D, V = V, js = js, pstay = pstay, table = table)
   
   cat(".")
   flush.console()
